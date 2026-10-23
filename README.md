@@ -1,10 +1,6 @@
-# DSH-Thinking-Icon
-用于替换dsh的深度思考摆鱼尾的小动画
 # DSH Thinking Icon
 
 把 DeepSeek Harness 聊天界面里「深度思考中」左边那颗动态鲸鱼尾小图标，替换成你自己的贴纸 GIF。
-
-![预览](预览.png)
 
 ## 效果
 
