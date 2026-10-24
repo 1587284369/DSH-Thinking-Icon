@@ -1,55 +1,67 @@
 # DSH Thinking Icon
 
-把 DeepSeek Harness 聊天界面里「深度思考中」左边那颗动态鲸鱼尾小图标，替换成你自己的贴纸 GIF。
+把 DeepSeek Harness 聊天界面里「深度思考中」左边那颗动态鲸鱼尾小图标，换成你自己的贴纸 GIF。
 
-## 效果
+Replace the animated whale-tail icon next to the **深度思考中 / thinking** status row in DeepSeek Harness with your own sticker GIF.
 
-- 思考进行中时，状态行左侧的小图标显示为这张贴纸（18px，含 4 帧轻微呼吸动画）。
-- 其它 UI、功能、数据完全不变。
+![preview](预览.png)
 
-## 安装
+## 效果 / What it does
 
-1. 退出 DeepSeek Harness（托盘里也要退出）。
-2. 双击 `安装.cmd`。
-3. 按提示完成后，重新打开 DeepSeek Harness。
+- 思考进行中时，状态行左侧显示自定义 GIF（18px，4 帧呼吸动画）
+- 仅改一处 CSS，其它 UI、功能、数据完全不变
+- 等长字节替换 `app.asar` 内嵌的 `client.js`，不重打包、不改文件大小
 
-> 如果 Windows 提示「已保护你的电脑」或 SmartScreen 拦截，点「更多信息 → 仍要运行」。
-> 如果是从网上下载的压缩包，建议先右键 zip → 属性 → 勾选「解除锁定」再解压。
+## 安装 / Install
 
-如果自动找不到安装目录，可以手动指定：
+1. 退出 DeepSeek Harness（含托盘）
+2. 双击 `安装.cmd`
+3. 重启 DeepSeek Harness
+
+手动指定安装目录：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File tools\install.ps1 -AsarPath "D:\你的安装目录\resources\app.asar"
+powershell -ExecutionPolicy Bypass -File tools\install.ps1 -AsarPath "D:\你的目录\resources\app.asar"
 ```
 
-## 还原
+## 还原 / Restore
 
-双击 `还原.cmd`，会从 `app.asar.bak` 恢复原始文件，然后重启应用。
+双击 `还原.cmd`，从 `app.asar.bak` 恢复，然后重启应用。
 
-如果应用在这之后升级过，还原脚本会检测到指纹不一致并提示确认（避免把新版本降级成旧版本）。
+若检测到应用已升级（指纹不一致），脚本会提示确认，避免把新版降级。
 
-## 原理与安全性
+## 工作原理 / How it works
 
-- 只改 `resources\app.asar` 里 `@deepseek-ai/dsh-client-ui-chat/lib/client.js` 的一段 CSS：把原来的 `mask` 遮罩图换成内嵌的贴纸 GIF。
-- 采用**等长字节替换**：asar 文件头、文件大小、其它 18000+ 个文件均不变，不使用重打包。
-- 安装前自动备份为 `app.asar.bak`；安装后自动校验，校验失败会自动回滚。
-- 不联网、不写注册表、不安装服务。
+运行图标原本是一段内嵌 APNG 加 `mask` 的单色遮罩。脚本定位到这条规则：
 
-## 兼容性
+```css
+._runningWhaleAnimated{will-change:transform;background:currentColor;display:block;mask:url(data:image/png;base64,...)}
+```
 
-- 在 DeepSeek Harness 0.2.1-rc.2（Windows x64）上测试通过。
-- 如果版本更新后提示「未找到运行图标规则」，说明该版本 UI 结构变化，需要更新本工具。
-- 应用升级/重装后需要重新安装一次（升级会覆盖 app.asar）。
+把规则体换成 `background-image` 引用贴纸 GIF，并用空格补齐到**完全相同的字节长度**，因此 asar 头、偏移、总大小都不变。
 
-## 已知限制
+定位用的是特征匹配（`mask:url(data:image/png;base64,` + `_runningWhaleAnimated` 选择器），不依赖构建哈希，小版本更新后通常仍可用。
 
-- 图标实际只有 18px，贴纸细节多，缩小后会偏糊，能看出蓝色小人但看不清五官。
-- 深色主题下贴纸仍是蓝白色，不会跟随主题变色（原图标是单色遮罩）。
+## 兼容性 / Compatibility
 
-## 卸载
+| 应用版本 | 状态 |
+| --- | --- |
+| 0.2.1-rc.2 | 已测试 |
+| 0.2.1-rc.3 (nightly 2026-10-23) | 已测试 |
 
-还原后删除整个文件夹即可；`app.asar.bak` 也可以一并删除。
+如果提示「未找到运行图标的遮罩规则」，说明 UI 结构变了，需要更新本工具。
+
+## 已知限制 / Limitations
+
+- 图标实际只有 18px，细节多的图会偏糊
+- 贴纸是彩色位图，深色主题下不会跟随主题变色（原图标是单色遮罩）
+
+## 安全 / Safety
+
+- 不联网、不写注册表、不装服务
+- 安装前自动备份 `app.asar.bak`，写入后校验，失败自动回滚
+- 随时可用 `还原.cmd` 恢复
 
 ## License
 
-仅用于个人美化，贴纸素材版权归原作者所有。
+代码 MIT。示例贴纸素材版权归原作者，仅作演示；正式发布请替换成你有权使用的图片。

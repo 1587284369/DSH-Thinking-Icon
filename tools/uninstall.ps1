@@ -76,9 +76,7 @@ if ((Test-Path -LiteralPath $metaPath) -and -not $Force) {
 
 Copy-Item -LiteralPath $bak -Destination $asar -Force
 Say '已还原为原始文件。' 'Green'
-if (Test-Path -LiteralPath ($asar + '.meta.json')) {
-    Remove-Item -LiteralPath ($asar + '.meta.json') -Force -ErrorAction SilentlyContinue
-}
+if (Test-Path -LiteralPath $metaPath) { Remove-Item -LiteralPath $metaPath -Force -ErrorAction SilentlyContinue }
 Write-Host ''
 Write-Host '  请重启 DeepSeek Harness 生效。' -ForegroundColor Cyan
 Write-Host ''
